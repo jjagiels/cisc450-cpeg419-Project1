@@ -92,7 +92,7 @@ int main(void) {
             printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\n:");
             scanf("%s", selection);
         
-            toupper(selection[0]); //TODO: This is not forcing the input to an uppercase letter.
+            selection[0] = toupper(selection[0]);
             
             userSelection = selection[0];
         

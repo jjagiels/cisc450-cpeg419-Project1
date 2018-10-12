@@ -11,6 +11,7 @@
 #include <sys/socket.h>     /* for socket, connect, send, and recv */
 #include <netinet/in.h>     /* for sockaddr_in */
 #include <unistd.h>         /* for close */
+#include <arpa/inet.h>      /* for htonl and ntohl */
 
 #define BUFF_SIZE 1024
 
@@ -130,33 +131,53 @@ int main(void) {
             }
             continue;
             break;
-          case checkBalance:
+          case checkBalance:{
+              char acct;
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
               printf("\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:");
-              scanf("%d", &accountID);
+              scanf("%c", &acct);
               buffer.directive = 'C';
-              buffer.account1 = (char)accountID;
+              buffer.account1 = (char)acct;
               buffer.ok = '1';
               break;
-          case deposit:
+          }
+          case deposit:{
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
 			  char acct;
 			  int amt;
 			  printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
-			  scanf("%d", &acct);
-			  printf("\nPlease enter amount to be deposited:\n")
+			  scanf("%c", &acct);
+			  printf("\nPlease enter amount to be deposited:\n");
 			  scanf("%d", &amt);
-			  buffer->ok = 1;
-			  buffer->derective = 'D';
-			  buffer->account1 = acct;
-			  buffer->amount = amt;
+			  buffer.ok = 1;
+			  buffer.directive = 'D';
+			  buffer.account1 = acct;
+			  buffer.amount = htonl(amt);
 			  break;
+          }
           case withdraw:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
               break;
-          case transfer:
+          case transfer:{
               //TODO: Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
+              char acct1;
+              char acct2;
+              int amt;
+              
+              printf("\nPlease select which account you are tranferring FROM:\n\nChecking account: 0\n Savings account: 1\n:");
+              scanf("%c", &acct1);
+              printf("\nPlease select which account you are tranferring TO:\n\nChecking account: 0\n Savings account: 1\n:");
+              scanf("%c", &acct2);
+              printf("\nPlease enter amount to be tranferred\n:");
+              scanf("%d", &amt);
+              
+              buffer.directive = 'T';
+              buffer.account1 = acct1;
+              buffer.account2 = acct2;
+              buffer.amount = htonl(amt);
+              buffer.ok = '1';
               break;
+          }
           case quit:
               //TODO: Code Here
               break;

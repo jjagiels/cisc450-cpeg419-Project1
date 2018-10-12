@@ -23,28 +23,19 @@ struct Buffer {
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
 };
 
-void sendFunc(struct Buffer msg, int sock_client){
-
+void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
+        int bytes_sent, bytes_recd; /* number of bytes sent or received */
 	/* send message */
 
-	bytes_sent = send(sock_client, &buffer, msg_len, 0);
-	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok,
-		"Transaction type: %c", msg.directive,
-		"Account used (0 for Checkings, 1 for Savings): %c", msg.account1,
-		"Account 2 used (0 for Checkings, 1 for Savings): %c", msg.account2,
-		"Amount (in USD) expected: $%d", msg.amount , 
-		"MESSAGE LENGTH: %d bytes", bytes_sent);
-
-	printf("\nThe response from server is:\n");
-	printf("%s\n\n", &returnBuffer.ok);
+	bytes_sent = send(sock_client, &msg, msg_len, 0);
+	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok);
+        printf("Transaction type: %c\n", msg.directive);
+	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
+	printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
+	printf("Amount (in USD) expected: $%d\n", msg.amount); 
+	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
 }
 
-void recvFunc(struct Buffer msg, int sock_client) {
-
-	/* get response from server */
-
-	bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0);
-}
 
 int main(void) {
 
@@ -67,7 +58,7 @@ int main(void) {
 
    char selection = 'I';  /* sent command to server */
    unsigned int msg_len;  /* length of message */                      
-   int bytes_sent, bytes_recd; /* number of bytes sent or received */
+   
   
    /* open a socket */
 
@@ -175,18 +166,19 @@ int main(void) {
 			  buffer.account1 = acct;
 			  buffer.amount = htonl(amt);
 			  break;
+          }
 		  case withdraw:{
 			  //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
 			  int amt;
-			  printf("\nPlease enter amount to be deposited into Checkings (use only $20 incerements):\n")
+			  printf("\nPlease enter amount to be deposited into Checkings (use only $20 incerements):\n");
 				  scanf("%d", &amt);
 			  buffer.ok = 1;
-			  buffer.derective = 'W';
+			  buffer.directive = 'W';
 			  buffer.account1 = 0;
 			  buffer.amount = htonl(amt);
 			  break;
 		  }
-          case transfer:
+          case transfer:{
               //TODO: Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
               char acct1;
               char acct2;
@@ -206,9 +198,22 @@ int main(void) {
               buffer.ok = '1';
               break;
           }
-          case quit:
+          case quit:{
+              char input;
               //TODO: Code Here
+              close (sock_client);
+              printf("\nDo you wish to reconnect? (y/n)\n:");
+              scanf("%c",&input);
+              if(input == 'y' || input == 'Y'){
+                  //TODO: Move connection to its own function, and call that function here
+                menu = main;
+                continue;
+              }
+              else{
+                  exit(0);
+              }
               break;
+          }
           default:
               printf("menu enum not working correctly! Fix it!");
               exit(0);

@@ -23,8 +23,8 @@ int main(void) {
    struct hostent * server_hp;      /* Structure to store server's IP
                                         address */
                                         
-   enum state{main, checkBalance, deposit, withdraw, transfer}menu;
-   enum input{C,D,W,T}userSelection;
+   enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
+   enum input{C,D,W,T,Q}userSelection;
    menu = main;
    char server_hostname[STRING_SIZE]; /* Server's hostname */
    unsigned short server_port;  /* Port number used by server (remote port) */
@@ -89,7 +89,7 @@ int main(void) {
    while(1){
       switch(menu){
           case main:
-            printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\n:");
+            printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:");
             scanf("%s", selection);
         
             selection[0] = toupper(selection[0]);
@@ -117,17 +117,20 @@ int main(void) {
             }
             break;
           case checkBalance:
-              //TODO: Code Here
+              //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
               break;
           case deposit:
-              //TODO: Code Here
+              //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
               break;
           case withdraw:
-              //TODO: Code Here
+              //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
               break;
           case transfer:
-              //TODO: Code Here
+              //TODO: Ask for an original account and an account to transfer to, then 
               break;
+		  case quit:
+			  //TODO: Code Here
+			  break;
           default:
               printf("menu enum not working correctly! Fix it!");
               exit(0);

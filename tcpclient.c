@@ -139,6 +139,16 @@ int main(void) {
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
+			  char acct;
+			  int amt;
+			  printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
+			  scanf("%d", &acct);
+			  printf("\nPlease enter amount to be deposited:\n")
+			  scanf("%d", &amt);
+			  buffer->ok = 1;
+			  buffer->derective = 'D';
+			  buffer->account1 = acct;
+			  buffer->amount = amt;
 			  break;
           case withdraw:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check

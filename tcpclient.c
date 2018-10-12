@@ -25,11 +25,12 @@ int main(void) {
                                         
    enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
    enum input{C,D,W,T,Q}userSelection;
+   int accountID = 3;
    menu = main;
    char server_hostname[BUFF_SIZE]; /* Server's hostname */
    unsigned short server_port;  /* Port number used by server (remote port) */
 
-   char selection[1] = "I";  /* sent command to server */
+   char selection = 'I';  /* sent command to server */
    
    char buffer[BUFF_SIZE];
    char returnBuffer[BUFF_SIZE]; /* receive message */
@@ -90,11 +91,11 @@ int main(void) {
       switch(menu){
           case main:
             printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:");
-            scanf("%s", selection);
+            scanf("%s", &selection);
         
-            selection[0] = toupper(selection[0]);
+            selection = toupper(selection);
             
-            userSelection = selection[0];
+            userSelection = selection;
         
             switch(userSelection){
         
@@ -113,7 +114,7 @@ int main(void) {
                 case 'Q':
                     menu = quit;
                 default:
-                    printf("Invalid selection, please try again");
+                    printf("Invalid selection, please try again\n");
                     menu = main;
                     break;
             }
@@ -121,7 +122,11 @@ int main(void) {
             break;
           case checkBalance:
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
-              printf("did something\n");
+              printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
+              scanf("%d", &accountID);
+              buffer[1] = 'C';
+              buffer[2] = (char)accountID;
+              buffer[0] = '1';
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account

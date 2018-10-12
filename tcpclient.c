@@ -132,7 +132,7 @@ int main(void) {
             break;
           case checkBalance:
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
-              printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
+              printf("\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:");
               scanf("%d", &accountID);
               buffer.directive = 'C';
               buffer.account1 = (char)accountID;

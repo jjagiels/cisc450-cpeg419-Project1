@@ -12,7 +12,7 @@
 #include <netinet/in.h>     /* for sockaddr_in */
 #include <unistd.h>         /* for close */
 
-#define STRING_SIZE 1024
+#define BUFF_SIZE 1024
 
 int main(void) {
 
@@ -26,13 +26,13 @@ int main(void) {
    enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
    enum input{C,D,W,T,Q}userSelection;
    menu = main;
-   char server_hostname[STRING_SIZE]; /* Server's hostname */
+   char server_hostname[BUFF_SIZE]; /* Server's hostname */
    unsigned short server_port;  /* Port number used by server (remote port) */
 
    char selection[1];  /* sent command to server */
    
-   char sentence[STRING_SIZE];
-   char modifiedSentence[STRING_SIZE]; /* receive message */
+   char sentence[BUFF_SIZE];
+   char modifiedSentence[BUFF_SIZE]; /* receive message */
    unsigned int msg_len;  /* length of message */                      
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
   
@@ -110,6 +110,8 @@ int main(void) {
                 case 'T':
                     menu = transfer;
                     break;
+                case 'Q':
+                    menu = quit;
                 default:
                     printf("Invalid selection, please try again");
                     menu = main;
@@ -126,11 +128,11 @@ int main(void) {
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
               break;
           case transfer:
-              //TODO: Ask for an original account and an account to transfer to, then 
+              //TODO: Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
               break;
-		  case quit:
-			  //TODO: Code Here
-			  break;
+          case quit:
+              //TODO: Code Here
+              break;
           default:
               printf("menu enum not working correctly! Fix it!");
               exit(0);
@@ -144,7 +146,7 @@ int main(void) {
 
    /* get response from server */
   
-   bytes_recd = recv(sock_client, modifiedSentence, STRING_SIZE, 0); 
+   bytes_recd = recv(sock_client, modifiedSentence, BUFF_SIZE, 0); 
 
    printf("\nThe response from server is:\n");
    printf("%s\n\n", modifiedSentence);

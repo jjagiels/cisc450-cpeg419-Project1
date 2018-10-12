@@ -23,7 +23,7 @@ struct Buffer {
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
 };
 
-SRFunc(Buffer msg){
+void sendFunc(struct Buffer msg, int sock_client){
 
 	/* send message */
 
@@ -35,12 +35,15 @@ SRFunc(Buffer msg){
 		"Amount (in USD) expected: $%d", msg.amount , 
 		"MESSAGE LENGTH: %d bytes", bytes_sent);
 
+	printf("\nThe response from server is:\n");
+	printf("%s\n\n", &returnBuffer.ok);
+}
+
+void recvFunc(struct Buffer msg, int sock_client) {
+
 	/* get response from server */
 
 	bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0);
-
-	printf("\nThe response from server is:\n");
-	printf("%s\n\n", &returnBuffer.ok);
 }
 
 int main(void) {

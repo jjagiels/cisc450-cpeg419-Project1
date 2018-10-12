@@ -29,10 +29,10 @@ int main(void) {
    char server_hostname[BUFF_SIZE]; /* Server's hostname */
    unsigned short server_port;  /* Port number used by server (remote port) */
 
-   char selection[1];  /* sent command to server */
+   char selection[1] = "I";  /* sent command to server */
    
-   char sentence[BUFF_SIZE];
-   char modifiedSentence[BUFF_SIZE]; /* receive message */
+   char buffer[BUFF_SIZE];
+   char returnBuffer[BUFF_SIZE]; /* receive message */
    unsigned int msg_len;  /* length of message */                      
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
   
@@ -117,9 +117,11 @@ int main(void) {
                     menu = main;
                     break;
             }
+            continue;
             break;
           case checkBalance:
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
+              printf("did something\n");
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
@@ -142,14 +144,14 @@ int main(void) {
    
    /* send message */
    
-   bytes_sent = send(sock_client, sentence, msg_len, 0);
+   bytes_sent = send(sock_client, buffer, msg_len, 0);
 
    /* get response from server */
   
-   bytes_recd = recv(sock_client, modifiedSentence, BUFF_SIZE, 0); 
+   bytes_recd = recv(sock_client, returnBuffer, BUFF_SIZE, 0); 
 
    printf("\nThe response from server is:\n");
-   printf("%s\n\n", modifiedSentence);
+   printf("%s\n\n", returnBuffer);
 
    /* close the socket */
 

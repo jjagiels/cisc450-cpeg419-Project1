@@ -14,6 +14,15 @@
 
 #define BUFF_SIZE 1024
 
+struct buffer {
+	char ok = 0;		/* Validates the struct */
+	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
+	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
+	int amount;			/* Amount to be deposited, withdrawn or transfered */
+};
+
+
+
 int main(void) {
 
    int sock_client;  /* Socket used by client */
@@ -125,7 +134,7 @@ int main(void) {
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
-              break;
+			  break;
           case withdraw:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
               break;

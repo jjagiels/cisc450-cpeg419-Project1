@@ -15,7 +15,7 @@
 #define BUFF_SIZE 1024
 
 struct Buffer {
-	char ok = 0;		/* Validates the struct */
+	char ok;		/* Validates the struct */
 	char directive;         /* informs server of action user wishes to take */
 	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
 	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
@@ -33,7 +33,8 @@ int main(void) {
    struct hostent * server_hp;      /* Structure to store server's IP
                                         address */
                                         
-   struct Buffer buffer; 
+   struct Buffer buffer = {'0','I','3','3',0};
+   struct Buffer returnBuffer = {'0','I','3','3',0};
                                         
    enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
    enum input{C,D,W,T,Q}userSelection;
@@ -43,9 +44,6 @@ int main(void) {
    unsigned short server_port;  /* Port number used by server (remote port) */
 
    char selection = 'I';  /* sent command to server */
-   
-   char buffer[BUFF_SIZE];
-   char returnBuffer[BUFF_SIZE]; /* receive message */
    unsigned int msg_len;  /* length of message */                      
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
   
@@ -136,13 +134,13 @@ int main(void) {
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
               printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
               scanf("%d", &accountID);
-              buffer->directive = 'C';
-              buffer->account1 = (char)accountID;
-              buffer->ok = '1';;
+              buffer.directive = 'C';
+              buffer.account1 = (char)accountID;
+              buffer.ok = '1';
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
-			  break;
+              break;
           case withdraw:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
               break;
@@ -161,14 +159,14 @@ int main(void) {
    
    /* send message */
    
-   bytes_sent = send(sock_client, buffer, msg_len, 0);
+   bytes_sent = send(sock_client, &buffer, msg_len, 0);
 
    /* get response from server */
   
-   bytes_recd = recv(sock_client, returnBuffer, BUFF_SIZE, 0); 
+   bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0); 
 
    printf("\nThe response from server is:\n");
-   printf("%s\n\n", returnBuffer);
+   printf("%s\n\n", &returnBuffer.ok);
 
    /* close the socket */
 

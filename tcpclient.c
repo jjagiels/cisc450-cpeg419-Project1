@@ -23,24 +23,17 @@ struct Buffer {
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
 };
 
-SRFunc(Buffer msg){
-
+void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
+        int bytes_sent, bytes_recd; /* number of bytes sent or received */
 	/* send message */
 
-	bytes_sent = send(sock_client, &buffer, msg_len, 0);
-	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok,
-		"Transaction type: %c", msg.directive,
-		"Account used (0 for Checkings, 1 for Savings): %c", msg.account1,
-		"Account 2 used (0 for Checkings, 1 for Savings): %c", msg.account2,
-		"Amount (in USD) expected: $%d", msg.amount , 
-		"MESSAGE LENGTH: %d bytes", bytes_sent);
-
-	/* get response from server */
-
-	bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0);
-
-	printf("\nThe response from server is:\n");
-	printf("%s\n\n", &returnBuffer.ok);
+	bytes_sent = send(sock_client, &msg, msg_len, 0);
+	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok);
+        printf("Transaction type: %c\n", msg.directive);
+	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
+	printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
+	printf("Amount (in USD) expected: $%d\n", msg.amount); 
+	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
 }
 
 
@@ -65,7 +58,7 @@ int main(void) {
 
    char selection = 'I';  /* sent command to server */
    unsigned int msg_len;  /* length of message */                      
-   int bytes_sent, bytes_recd; /* number of bytes sent or received */
+   
   
    /* open a socket */
 

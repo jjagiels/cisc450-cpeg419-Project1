@@ -36,6 +36,13 @@ void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
 	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
 }
 
+void RecvFunc() {
+
+	/* get response from server */
+
+	bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0);
+}
+
 
 int main(void) {
 

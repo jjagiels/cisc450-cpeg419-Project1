@@ -151,9 +151,17 @@ int main(void) {
 			  buffer->account1 = acct;
 			  buffer->amount = amt;
 			  break;
-          case withdraw:
-              //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
-              break;
+		  case withdraw:{
+			  //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
+			  int amt;
+			  printf("\nPlease enter amount to be deposited into Checkings (use only $20 incerements):\n")
+				  scanf("%d", &amt);
+			  buffer.ok = 1;
+			  buffer.derective = 'W';
+			  buffer.account1 = 0;
+			  buffer.amount = htonl(amt);
+			  break;
+		  }
           case transfer:
               //TODO: Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
               break;

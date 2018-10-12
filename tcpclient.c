@@ -14,8 +14,9 @@
 
 #define BUFF_SIZE 1024
 
-struct buffer {
+struct Buffer {
 	char ok = 0;		/* Validates the struct */
+	char directive;         /* informs server of action user wishes to take */
 	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
 	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
@@ -31,6 +32,8 @@ int main(void) {
                                         stores server address */
    struct hostent * server_hp;      /* Structure to store server's IP
                                         address */
+                                        
+   struct Buffer buffer; 
                                         
    enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
    enum input{C,D,W,T,Q}userSelection;
@@ -133,9 +136,9 @@ int main(void) {
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
               printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
               scanf("%d", &accountID);
-              buffer[1] = 'C';
-              buffer[2] = (char)accountID;
-              buffer[0] = '1';
+              buffer->directive = 'C';
+              buffer->account1 = (char)accountID;
+              buffer->ok = '1';;
               break;
           case deposit:
               //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account

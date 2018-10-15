@@ -10,7 +10,15 @@
 #include <netinet/in.h>     /* for sockaddr_in */
 #include <unistd.h>         /* for close */
 
-#define STRING_SIZE 1024   
+#define BUFF_SIZE 1024   
+
+struct Buffer {
+	char ok;		/* Validates the struct */
+	char directive;         /* informs server of action user wishes to take */
+	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
+	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
+	int amount;			/* Amount to be deposited, withdrawn or transfered */
+}recvBuffer;
 
 /* SERV_TCP_PORT is the port number on which the server listens for
    incoming requests from clients. You should change this to a different
@@ -32,8 +40,8 @@ int main(void) {
                                         stores client address */
    unsigned int client_addr_len;  /* Length of client address structure */
 
-   char sentence[STRING_SIZE];  /* receive message */
-   char modifiedSentence[STRING_SIZE]; /* send message */
+   char sentence[BUFF_SIZE];  /* receive message */
+   char modifiedSentence[BUFF_SIZE]; /* send message */
    unsigned int msg_len;  /* length of message */
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
    unsigned int i;  /* temporary loop variable */
@@ -91,12 +99,52 @@ int main(void) {
  
       /* receive the message */
 
-      bytes_recd = recv(sock_connection, sentence, STRING_SIZE, 0);
+      bytes_recd = recv(sock_connection, &recvBuffer, BUFF_SIZE, 0);
 
       if (bytes_recd > 0){
-         printf("Received Sentence is:\n");
-         printf("%s", sentence);
-         printf("\nwith length %d\n\n", bytes_recd);
+          /* Old recieve function */
+         //printf("Received Sentence is:\n");
+         //printf("%s", sentence);
+         //printf("\nwith length %d\n\n", bytes_recd);
+         
+         if(recvBuffer.ok == 0){
+         
+             //TODO: Return an "incorrect message" error back to the client
+        }
+        
+        //convert the amount int from the network to host long value
+        ntohl(recvBuffer.amount);
+        
+        switch(recvBuffer.directive){
+        
+            case 'C':{
+            
+                //TODO: The server must check the amount of money stored in the account requested, and return that amount to the client
+                break;
+            }
+            
+            case 'D':{
+            
+                //TODO: The server must add the number from recvBuffer.amount to the amount stored in the requested account's balance
+                break;
+            }
+            case 'W':{
+            
+                //TODO: The server must remove the number from recvBuffer.amount from the amount stored in the requested account's balance. This will return an error if recvBuffer.amount > balance
+                break;
+            }
+            case 'T':{
+            
+                //TODO: The server must first remove the number from recvBuffer.amount from the amount stored in the first requested account's balance and then add that amount to the amount stored in the second account's balance. This will return an error if recvBuffer.amount > account1Balance
+                break;
+            }
+            case 'Q':{
+            
+                //TODO: The client has disconnected
+            }
+            default:
+                //TODO: return an error to the client
+        }
 
         /* prepare the message to send */
 

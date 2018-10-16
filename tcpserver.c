@@ -18,6 +18,7 @@ struct Buffer {
 	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
 	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
+	char message[15];   /* Return message from the server */
 }recvBuffer;
 
 /* SERV_TCP_PORT is the port number on which the server listens for

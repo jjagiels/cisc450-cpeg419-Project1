@@ -21,6 +21,7 @@ struct Buffer {
 	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
 	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
+	char message[15];   /* Return message from the server */
 };
 
 void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
@@ -53,8 +54,8 @@ int main(void) {
    struct hostent * server_hp;      /* Structure to store server's IP
                                         address */
                                         
-   struct Buffer buffer = {'0','I','3','3',0};
-   struct Buffer returnBuffer = {'0','I','3','3',0};
+   struct Buffer buffer = {'0','I','3','3',0,"/0"};
+   struct Buffer returnBuffer = {'0','I','3','3',0,"/0"};
                                         
    enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
    enum input{C,D,W,T,Q}userSelection;

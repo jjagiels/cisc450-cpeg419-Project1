@@ -130,9 +130,7 @@ int main(void) {
    while(1) {
         
       
- 
       /* receive the message */
-
       bytes_recd = recv(sock_connection, &recvBuffer, BUFF_SIZE, 0);
       recvBuffer.message = '0';
       
@@ -342,6 +340,6 @@ int main(void) {
 
       /* close the socket */
 
-      close(sock_connection);
+      //close(sock_connection);
    } 
 }

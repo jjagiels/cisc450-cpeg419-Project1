@@ -55,7 +55,26 @@ void SendFunc(struct Buffer msg, int sock_client, state menu){
 
 	bytes_sent = send(sock_client, &msg, sizeof(msg), 0);
 	printf("\nMessage validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
-        printf("Transaction type: %c\n", menu);
+        switch(menu){
+        
+                case checkBalance:
+                    printf("Transaction type: Check Balance");
+                    break;
+                case deposit:
+                    printf("Transaction type: Deposit");
+                    break;
+                case withdraw:
+                    printf("Transaction type: Withdraw");
+                    break;
+                case transfer:
+                    printf("Transaction type: Transaction");
+                    break;
+                case quit:
+                    printf("Transaction type: Disconnect");
+                default:
+                    printf("Invalid selection, please try again\n");
+                    break;
+        }
 	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
 	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
 	printf("Amount (in USD) expected: $%d\n", ntohl(msg.amount)); 
@@ -118,8 +137,6 @@ int main(void) {
    buffer.message = '0';
    buffer.beforeAmount = 0;
    buffer.afterAmount = 0;
-   
-   struct Buffer returnBuffer;
                                         
    state menu = mainMenu;
    input userSelection = C;
@@ -299,7 +316,9 @@ int main(void) {
    
    
 
-      close (sock_client);
+      //close (sock_client);
+      
+        
    }
 
    

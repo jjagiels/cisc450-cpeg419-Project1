@@ -319,9 +319,6 @@ int main(void) {
 
          msg_len = bytes_recd;
 
-         for (i=0; i<msg_len; i++)
-            modifiedSentence[i] = toupper (sentence[i]);
-
          /* send message */
  
          bytes_sent = send(sock_connection, &recvBuffer, msg_len, 0);

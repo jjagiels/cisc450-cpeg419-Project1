@@ -16,33 +16,69 @@
 #define BUFF_SIZE 1024
 
 struct Buffer {
+	/* Values from the client */
 	char ok;		/* Validates the struct */
 	char directive;         /* informs server of action user wishes to take */
-	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
-	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
+	char account1;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the account used for checking balance, depositing, withdrawing, or the origin account for transfers*/
+	//char account2;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the target account for transfers */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
-	char message[15];   /* Return message from the server */
+
+
+	/* Values from the server */
+	char message;   /* Error message from the server */
+	int beforeAmount;	/* Value used to transmit the amount of money in an account before a transaction */
+	int afterAmount;	/* Value used to transmit the amount of money in an account after a transaction */
 };
 
 void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len, enum menu){
-    int bytes_sent, bytes_recd; /* number of bytes sent or received */
+	int bytes_sent;
 	/* send message */
 
 	bytes_sent = send(sock_client, &msg, msg_len, 0);
-	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok);
-        printf("Transaction type: %c\n", menu);
+	printf("Message validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
+    printf("Transaction type: %c\n", menu);
 	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
-	printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
+	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
 	printf("Amount (in USD) expected: $%d\n", msg.amount); 
 	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
 }
 
-void RecvFunc() {
-
+void RecvFunc(struct buffer msg, int socket_client, unsigned int nsg_len, enum menu) {
+	int bytes_recd; /* number of bytes sent or received */
 	/* get response from server */
 
-	bytes_recd = recv(sock_client, &returnBuffer, BUFF_SIZE, 0);
+	bytes_recd = recv(sock_client, &msg, BUFF_SIZE, 0);
+	printf("Message validation (0 for NOT VALID, 1 for VALID) for RECEIVE: %c\n", msg.ok);
+	//printf("Transaction type: %c\n", menu);
+	//printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
+	printf("Error message from server: %c", msg.message);
+	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
+	printf("Amount (in USD) in account before Transaction: $%d\n", msg.beforeAmount);
+	printf("Amount (in USD) in account after Transaction: $%d\n", msg.afterAmount);
+	printf("MESSAGE LENGTH: %d bytes\n", bytes_recd);
 }
+
+/*
+
+DESCRIPTION OF ERROR CODES:
+
+------------------------------------------
+|| CODE ||            MEANING           ||
+------------------------------------------
+||  '0' || No Error                     ||
+------------------------------------------
+||  'A' || Invalid message              ||
+------------------------------------------
+||  'B' || Withdraw from Savings        ||
+------------------------------------------
+||  'C' || Overdraw from account        ||
+------------------------------------------
+||  'D' || Withdraw not divisible by 20 ||
+------------------------------------------
+||  'E' || Invalid account selected     ||
+------------------------------------------
+
+*/
 
 
 int main(void) {

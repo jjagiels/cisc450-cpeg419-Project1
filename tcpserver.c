@@ -160,7 +160,7 @@ int main(void) {
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
-					recvBuffer.message = "E\0";
+					recvBuffer.message[0] = 'E';
 				}
                 break;
             }

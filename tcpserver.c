@@ -34,9 +34,11 @@ DESCRIPTION OF ERROR CODES:
 ------------------------------------------
 || CODE ||            MEANING           ||
 ------------------------------------------
+||  '0' || No Error                     ||
+------------------------------------------
 ||  'A' || Invalid message              ||
 ------------------------------------------
-||  'B' || Withdrawl from Savings       ||
+||  'B' || Withdraw from Savings        ||
 ------------------------------------------
 ||  'C' || Overdraw from account        ||
 ------------------------------------------
@@ -168,16 +170,89 @@ int main(void) {
             case 'D':{
             
                 //TODO: The server must add the number from recvBuffer.amount to the amount stored in the requested account's balance
+				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account
+				
+					recvBuffer.beforeAmount = checkingBalance; //Store the amount in checking before the transaction
+					checkingBalance += recvBuffer.amount; 
+					recvBuffer.afterAmount = checkingBalance;
+				}
+				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account
+				
+					recvBuffer.beforeAmount = savingsBalance;
+					savingsBalance += recvBuffer.amount;
+					recvBuffer.afterAmount = savingsBalance;
+				}
+				else{ //Neither the checking or savings account was selected, and an error must be returned
+				
+					recvBuffer.message[0] = 'E';
+				}
                 break;
             }
             case 'W':{
             
                 //TODO: The server must remove the number from recvBuffer.amount from the amount stored in the requested account's balance. This will return an error if recvBuffer.amount > balance
+				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account
+				
+					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
+					
+						recvBuffer.message[0] = 'C';
+						break;
+					}
+					if((recvBuffer.amount % 20 != 0){ //The requested withdraw amount is not a multiple of 20, and server must return an error
+					
+						recvBuffer.message[0] = 'D';
+						break;
+					}
+					
+					recvBuffer.beforeAmount = checkingBalance; //Store the amount in checking before the transaction
+					checkingBalance -= recvBuffer.amount; 
+					recvBuffer.afterAmount = checkingBalance;
+				}
+				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account, however this is disallowed for withdrawl, so server must return an error
+				
+					recvBuffer.message[0] = 'B';
+					break;
+				}
+				else{ //Neither the checking or savings account was selected, and an error must be returned
+				
+					recvBuffer.message[0] = 'E';
+				}
                 break;
             }
             case 'T':{
             
                 //TODO: The server must first remove the number from recvBuffer.amount from the amount stored in the first requested account's balance and then add that amount to the amount stored in the second account's balance. This will return an error if recvBuffer.amount > account1Balance
+				
+				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account to transfer from, thus we need to transfer to savings
+				
+					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
+					
+						recvBuffer.message[0] = 'C';
+						break;
+					}
+				
+					recvBuffer.beforeAmount = savingsBalance;
+					checkingBalance -= recvBuffer.amount;
+					savingsBalance += recvBuffer.amount;
+					recvBuffer.afterAmount = savingsBalance;
+				}
+				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account to transfer from, thus we need to transfer to checking
+				
+					if((savingsBalance - recvBuffer.amount) < 0 ){ //User will overdraft the savings account, server must return an error
+					
+						recvBuffer.message[0] = 'C';
+						break;
+					}
+				
+					recvBuffer.beforeAmount = checkingBalance;
+					savingsBalance -= recvBuffer.amount;
+					checkingBalance += recvBuffer.amount;
+					recvBuffer.afterAmount = checkingBalance;
+				}
+				else{ //Neither the checking or savings account was selected, and an error must be returned
+				
+					recvBuffer.message[0] = 'E';
+				}
                 break;
             }
             case 'Q':{

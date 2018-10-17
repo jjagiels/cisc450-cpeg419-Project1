@@ -24,13 +24,13 @@ struct Buffer {
 	char message[15];   /* Return message from the server */
 };
 
-void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
+void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len, enum menu){
     int bytes_sent, bytes_recd; /* number of bytes sent or received */
 	/* send message */
 
 	bytes_sent = send(sock_client, &msg, msg_len, 0);
 	printf("Message validation (0 for NOT VALID, 1 for VALID): %c\n", msg.ok);
-        printf("Transaction type: %c\n", msg.directive);
+        printf("Transaction type: %c\n", menu);
 	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
 	printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
 	printf("Amount (in USD) expected: $%d\n", msg.amount); 

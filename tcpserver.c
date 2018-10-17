@@ -117,25 +117,25 @@ int main(void) {
 
    /* wait for incoming connection requests in an indefinite loop */
    
-   while(1) {
-        sock_connection = accept(sock_server, (struct sockaddr *) &client_addr, 
+   sock_connection = accept(sock_server, (struct sockaddr *) &client_addr, 
                                             &client_addr_len);
                         /* The accept function blocks the server until a
                             connection request comes from a client */
-        if (sock_connection < 0) {
-            perror("Server: accept() error\n"); 
-            close(sock_server);
-            exit(1);
-        }
+       if (sock_connection < 0) {
+           perror("Server: accept() error\n"); 
+           close(sock_server);
+           exit(1);
+    }
+   
+   while(1) {
+        
       
  
       /* receive the message */
 
       bytes_recd = recv(sock_connection, &recvBuffer, BUFF_SIZE, 0);
       
-      ntohl(recvBuffer.amount);
-      ntohl(recvBuffer.beforeAmount);
-      ntohl(recvBuffer.afterAmount);
+      
 
       if (bytes_recd > 0){
           /* Old recieve function */
@@ -146,11 +146,14 @@ int main(void) {
          if(recvBuffer.ok == '0'){
          
              //TODO: Return an "incorrect message" error back to the client
+             recvBuffer.message = 'A';
              continue;
         }
         
         //convert the amount int from the network to host long value
-        ntohl(recvBuffer.amount);
+        recvBuffer.amount = ntohl(recvBuffer.amount);
+        recvBuffer.beforeAmount = ntohl(recvBuffer.beforeAmount);
+        recvBuffer.afterAmount = ntohl(recvBuffer.afterAmount);
 		
 		/* print relevant information from the client's message */
 		
@@ -188,7 +191,7 @@ int main(void) {
                     break;
         }
 		
-		printf("The user has specified %d as the amount to use for this transaction\n\n", ntohl(recvBuffer.amount));
+		printf("The user has specified %d as the amount to use for this transaction\n\n", recvBuffer.amount);
 		
 		/* add some newlines for readability*/
 		
@@ -241,7 +244,7 @@ int main(void) {
                 //TODO: The server must remove the number from recvBuffer.amount from the amount stored in the requested account's balance. This will return an error if recvBuffer.amount > balance
 				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account
 				
-					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
+					if(checkingBalance < recvBuffer.amount ){ //User will overdraft the checking account, server must return an error
 					
 						recvBuffer.message = 'C';
 						break;
@@ -273,7 +276,7 @@ int main(void) {
 				
 				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account to transfer from, thus we need to transfer to savings
 				
-					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
+					if((checkingBalance < recvBuffer.amount){ //User will overdraft the checking account, server must return an error
 					
 						recvBuffer.message = 'C';
 						break;
@@ -286,7 +289,7 @@ int main(void) {
 				}
 				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account to transfer from, thus we need to transfer to checking
 				
-					if((savingsBalance - recvBuffer.amount) < 0 ){ //User will overdraft the savings account, server must return an error
+					if((savingsBalance < recvBuffer.amount ){ //User will overdraft the savings account, server must return an error
 					
 						recvBuffer.message = 'C';
 						break;
@@ -304,8 +307,8 @@ int main(void) {
                 break;
             }
             case 'Q':{
-				printf("Server will not respond to client, as client has disconnected\n");
-                //TODO: The client has disconnected
+                    printf("Server will not respond to client, as client has disconnected\n");
+                    //TODO: The client has disconnected
 				break;
             }
             default:
@@ -321,9 +324,9 @@ int main(void) {
 		printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);
 		printf("Error Code: %c\n", recvBuffer.message);
                 
-                htonl(recvBuffer.beforeAmount);
-                htonl(recvBuffer.afterAmount);
-                htonl(recvBuffer.amount);
+                recvBuffer.beforeAmount = htonl(recvBuffer.beforeAmount);
+                recvBuffer.afterAmount = htonl(recvBuffer.afterAmount);
+                recvBuffer.amount = htonl(recvBuffer.amount);
 
         /* prepare the message to send */
 

@@ -54,12 +54,12 @@ void SendFunc(struct Buffer msg, int sock_client, state menu){
 	/* send message */
 
 	bytes_sent = send(sock_client, &msg, sizeof(msg), 0);
-	printf("Message validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
-    printf("Transaction type: %c\n", menu);
+	printf("\nMessage validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
+        printf("Transaction type: %c\n", menu);
 	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
 	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
 	printf("Amount (in USD) expected: $%d\n", ntohl(msg.amount)); 
-	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
+	printf("MESSAGE LENGTH: %d bytes\n\n", bytes_sent);
 }
 
 void RecvFunc(struct Buffer msg, int sock_client, state menu) {
@@ -70,11 +70,11 @@ void RecvFunc(struct Buffer msg, int sock_client, state menu) {
 	printf("Message validation (0 for NOT VALID, 1 for VALID) for RECEIVE: %c\n", msg.ok);
 	//printf("Transaction type: %c\n", menu);
 	//printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
-	printf("Error message from server: %c", msg.message);
+	printf("Error message from server: %c\n", msg.message);
 	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
 	printf("Amount (in USD) in account before Transaction: $%d\n", ntohl(msg.beforeAmount));
 	printf("Amount (in USD) in account after Transaction: $%d\n", ntohl(msg.afterAmount));
-	printf("MESSAGE LENGTH: %d bytes\n", bytes_recd);
+	printf("MESSAGE LENGTH: %d bytes\n\n", bytes_recd);
 }
 
 /*
@@ -158,13 +158,12 @@ int main(void) {
    server_addr.sin_port = htons(server_port);
 
     /* connect to the server */
- 		
-   if (connect(sock_client, (struct sockaddr *) &server_addr, 
-                                    sizeof (server_addr)) < 0) {
-      perror("Client: can't connect to server");
-      close(sock_client);
-      exit(1);
-   }
+    if (connect(sock_client, (struct sockaddr *) &server_addr, sizeof (server_addr)) < 0) {
+        perror("Client: can't connect to server");
+        close(sock_client);
+        exit(1);
+    }
+   
   
    /* original user interface */
 
@@ -174,6 +173,7 @@ int main(void) {
    
    /* our banking user interface */
    while(1){
+      
       switch(menu){
           case mainMenu:
             printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:");
@@ -225,7 +225,7 @@ int main(void) {
 			  scanf("%s", &acct);
 			  printf("\nPlease enter amount to be deposited:\n");
 			  scanf("%d", &amt);
-			  buffer.ok = 1;
+			  buffer.ok = '1';
 			  buffer.directive = 'D';
 			  buffer.account1 = acct;
 			  buffer.amount = htonl(amt);
@@ -235,11 +235,11 @@ int main(void) {
 		  case withdraw:{
 			  //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
 			  int amt;
-			  printf("\nPlease enter amount to be deposited into Checkings (use only $20 incerements):\n");
-				  scanf("%d", &amt);
-			  buffer.ok = 1;
+			  printf("\nPlease enter amount to be withdrawn from Checkings (use only $20 incerements):\n");
+                          scanf("%d", &amt);
+			  buffer.ok = '1';
 			  buffer.directive = 'W';
-			  buffer.account1 = 0;
+			  buffer.account1 = '0';
 			  buffer.amount = htonl(amt);
                           menu = mainMenu;
 			  break;
@@ -286,11 +286,12 @@ int main(void) {
       SendFunc(buffer, sock_client, menu);
    
       RecvFunc(buffer, sock_client, menu);
+      /* close the socket */
+   
+   
+
+      close (sock_client);
    }
 
-   /* close the socket */
    
-   
-
-   close (sock_client);
 }

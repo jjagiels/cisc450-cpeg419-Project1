@@ -198,7 +198,7 @@ int main(void) {
 						recvBuffer.message[0] = 'C';
 						break;
 					}
-					if((recvBuffer.amount % 20 != 0){ //The requested withdraw amount is not a multiple of 20, and server must return an error
+					if((recvBuffer.amount % 20) != 0){ //The requested withdraw amount is not a multiple of 20, and server must return an error
 					
 						recvBuffer.message[0] = 'D';
 						break;

@@ -110,6 +110,15 @@ int main(void) {
                                         address */
                                         
    struct Buffer buffer;
+   /* Initialize the values in buffer */
+   buffer.ok = '0';
+   buffer.directive = 'R';
+   buffer.account1 = '3';
+   buffer.amount = 0;
+   buffer.message = '0';
+   buffer.beforeAmount = 0;
+   buffer.afterAmount = 0;
+   
    struct Buffer returnBuffer;
                                         
    state menu = mainMenu;

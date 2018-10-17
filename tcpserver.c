@@ -134,7 +134,7 @@ int main(void) {
       /* receive the message */
 
       bytes_recd = recv(sock_connection, &recvBuffer, BUFF_SIZE, 0);
-      
+      recvBuffer.message = '0';
       
 
       if (bytes_recd > 0){
@@ -254,10 +254,11 @@ int main(void) {
 						recvBuffer.message = 'D';
 						break;
 					}
-					
-					recvBuffer.beforeAmount = checkingBalance; //Store the amount in checking before the transaction
-					checkingBalance -= recvBuffer.amount; 
-					recvBuffer.afterAmount = checkingBalance;
+					else{
+                                            recvBuffer.beforeAmount = checkingBalance; //Store the amount in checking before the transaction
+                                            checkingBalance -= recvBuffer.amount; 
+                                            recvBuffer.afterAmount = checkingBalance;
+                                        }
 				}
 				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account, however this is disallowed for withdrawl, so server must return an error
 				
@@ -276,29 +277,31 @@ int main(void) {
 				
 				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account to transfer from, thus we need to transfer to savings
 				
-					if((checkingBalance < recvBuffer.amount){ //User will overdraft the checking account, server must return an error
+					if(checkingBalance < recvBuffer.amount){ //User will overdraft the checking account, server must return an error
 					
 						recvBuffer.message = 'C';
 						break;
 					}
-				
-					recvBuffer.beforeAmount = savingsBalance;
-					checkingBalance -= recvBuffer.amount;
-					savingsBalance += recvBuffer.amount;
-					recvBuffer.afterAmount = savingsBalance;
+                                        else{
+                                            recvBuffer.beforeAmount = savingsBalance;
+                                            checkingBalance -= recvBuffer.amount;
+                                            savingsBalance += recvBuffer.amount;
+                                            recvBuffer.afterAmount = savingsBalance;
+                                        }
 				}
 				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account to transfer from, thus we need to transfer to checking
 				
-					if((savingsBalance < recvBuffer.amount ){ //User will overdraft the savings account, server must return an error
+					if(savingsBalance < recvBuffer.amount ){ //User will overdraft the savings account, server must return an error
 					
 						recvBuffer.message = 'C';
 						break;
 					}
-				
-					recvBuffer.beforeAmount = checkingBalance;
-					savingsBalance -= recvBuffer.amount;
-					checkingBalance += recvBuffer.amount;
-					recvBuffer.afterAmount = checkingBalance;
+                                        else{
+                                            recvBuffer.beforeAmount = checkingBalance;
+                                            savingsBalance -= recvBuffer.amount;
+                                            checkingBalance += recvBuffer.amount;
+                                            recvBuffer.afterAmount = checkingBalance;
+                                        }
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
@@ -318,7 +321,7 @@ int main(void) {
 		
 		/*Print out the information from the response */
                 
-		recvBuffer.message = '0';
+		
 		printf("Server will respond with:\n\n");
 		printf("Amount stored in selected account before transaction: %d\n", recvBuffer.beforeAmount);
 		printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);

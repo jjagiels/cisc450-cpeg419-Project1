@@ -313,7 +313,7 @@ int main(void) {
 		printf("Server will respond with:\n");
 		printf("Amount stored in selected account before transaction: %d\n", recvBuffer.beforeAmount);
 		printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);
-		printf("Error Code: %c\n", &recvBuffer.message);
+		printf("Error Code: %s\n", &recvBuffer.message);
 
         /* prepare the message to send */
 

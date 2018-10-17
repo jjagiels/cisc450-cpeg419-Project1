@@ -146,6 +146,49 @@ int main(void) {
         
         //convert the amount int from the network to host long value
         ntohl(recvBuffer.amount);
+		
+		/* print relevant information from the client's message */
+		
+		switch(recvBuffer.directive){
+        
+                case 'C':
+                    printf("User has selected the option: Check Balance\n");
+                    break;
+                case 'D':
+                    printf("User has selected the option: Deposit\n");
+                    break;
+                case 'W':
+                    printf("User has selected the option: Withdraw\n");
+                    break;
+                case 'T':
+                    printf("User has selected the option: Transfer\n");
+                    break;
+                case 'Q':
+                    printf("User has disconnected\n");
+                default:
+                    printf("User has made an invalid selection of directive\n");
+                    break;
+        }
+		
+		switch(recvBuffer.account1){
+        
+                case '0':
+                    printf("User has selected the account: Checking\n");
+                    break;
+                case '1':
+                    printf("User has selected the account: Savings\n");
+                    break;
+                default:
+                    printf("User has made an invalid selection of account\n");
+                    break;
+        }
+		
+		printf("The user has specified %d as the amount to use for this transaction\n\n", recvBuffer.amount);
+		
+		/* add some newlines for readability*/
+		
+		printf("\n\n\n");
+		
         
         switch(recvBuffer.directive){
         
@@ -256,7 +299,7 @@ int main(void) {
                 break;
             }
             case 'Q':{
-            
+				printf("Server will not respond to client, as client has disconnected\n");
                 //TODO: The client has disconnected
 				break;
             }
@@ -264,6 +307,13 @@ int main(void) {
                 //TODO: return an error to the client
 				break;
         }
+		
+		/*Print out the information from the response */
+		
+		printf("Server will respond with:\n");
+		printf("Amount stored in selected account before transaction: %d\n", recvBuffer.beforeAmount);
+		printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);
+		printf("Error Code: %c\n", &recvBuffer.message);
 
         /* prepare the message to send */
 

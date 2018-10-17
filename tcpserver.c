@@ -17,12 +17,12 @@ struct Buffer {
 	char ok;		/* Validates the struct */
 	char directive;         /* informs server of action user wishes to take */
 	char account1;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the account used for checking balance, depositing, withdrawing, or the origin account for transfers*/
-	char account2;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the target account for transfers */
+	//char account2;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the target account for transfers */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
 	
 	
 	/* Values from the server */
-	char message[15];   /* Error message from the server */
+	char message;   /* Error message from the server */
 	int beforeAmount;	/* Value used to transmit the amount of money in an account before a transaction */
 	int afterAmount;	/* Value used to transmit the amount of money in an account after a transaction */
 }recvBuffer;
@@ -116,22 +116,26 @@ int main(void) {
    client_addr_len = sizeof (client_addr);
 
    /* wait for incoming connection requests in an indefinite loop */
-
-   for (;;) {
-
-      sock_connection = accept(sock_server, (struct sockaddr *) &client_addr, 
-                                         &client_addr_len);
-                     /* The accept function blocks the server until a
-                        connection request comes from a client */
-      if (sock_connection < 0) {
-         perror("Server: accept() error\n"); 
-         close(sock_server);
-         exit(1);
-      }
+   
+   while(1) {
+        sock_connection = accept(sock_server, (struct sockaddr *) &client_addr, 
+                                            &client_addr_len);
+                        /* The accept function blocks the server until a
+                            connection request comes from a client */
+        if (sock_connection < 0) {
+            perror("Server: accept() error\n"); 
+            close(sock_server);
+            exit(1);
+        }
+      
  
       /* receive the message */
 
       bytes_recd = recv(sock_connection, &recvBuffer, BUFF_SIZE, 0);
+      
+      ntohl(recvBuffer.amount);
+      ntohl(recvBuffer.beforeAmount);
+      ntohl(recvBuffer.afterAmount);
 
       if (bytes_recd > 0){
           /* Old recieve function */
@@ -139,9 +143,10 @@ int main(void) {
          //printf("%s", sentence);
          //printf("\nwith length %d\n\n", bytes_recd);
          
-         if(recvBuffer.ok == 0){
+         if(recvBuffer.ok == '0'){
          
              //TODO: Return an "incorrect message" error back to the client
+             continue;
         }
         
         //convert the amount int from the network to host long value
@@ -183,7 +188,7 @@ int main(void) {
                     break;
         }
 		
-		printf("The user has specified %d as the amount to use for this transaction\n\n", recvBuffer.amount);
+		printf("The user has specified %d as the amount to use for this transaction\n\n", ntohl(recvBuffer.amount));
 		
 		/* add some newlines for readability*/
 		
@@ -205,7 +210,7 @@ int main(void) {
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
-					recvBuffer.message[0] = 'E';
+					recvBuffer.message = 'E';
 				}
                 break;
             }
@@ -227,7 +232,7 @@ int main(void) {
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
-					recvBuffer.message[0] = 'E';
+					recvBuffer.message = 'E';
 				}
                 break;
             }
@@ -238,12 +243,12 @@ int main(void) {
 				
 					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
 					
-						recvBuffer.message[0] = 'C';
+						recvBuffer.message = 'C';
 						break;
 					}
 					if((recvBuffer.amount % 20) != 0){ //The requested withdraw amount is not a multiple of 20, and server must return an error
 					
-						recvBuffer.message[0] = 'D';
+						recvBuffer.message = 'D';
 						break;
 					}
 					
@@ -253,12 +258,12 @@ int main(void) {
 				}
 				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account, however this is disallowed for withdrawl, so server must return an error
 				
-					recvBuffer.message[0] = 'B';
+					recvBuffer.message = 'B';
 					break;
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
-					recvBuffer.message[0] = 'E';
+					recvBuffer.message = 'E';
 				}
                 break;
             }
@@ -270,7 +275,7 @@ int main(void) {
 				
 					if((checkingBalance - recvBuffer.amount) < 0 ){ //User will overdraft the checking account, server must return an error
 					
-						recvBuffer.message[0] = 'C';
+						recvBuffer.message = 'C';
 						break;
 					}
 				
@@ -283,7 +288,7 @@ int main(void) {
 				
 					if((savingsBalance - recvBuffer.amount) < 0 ){ //User will overdraft the savings account, server must return an error
 					
-						recvBuffer.message[0] = 'C';
+						recvBuffer.message = 'C';
 						break;
 					}
 				
@@ -294,7 +299,7 @@ int main(void) {
 				}
 				else{ //Neither the checking or savings account was selected, and an error must be returned
 				
-					recvBuffer.message[0] = 'E';
+					recvBuffer.message = 'E';
 				}
                 break;
             }
@@ -309,18 +314,20 @@ int main(void) {
         }
 		
 		/*Print out the information from the response */
-		
-		printf("Server will respond with:\n");
+                
+		recvBuffer.message = '0';
+		printf("Server will respond with:\n\n");
 		printf("Amount stored in selected account before transaction: %d\n", recvBuffer.beforeAmount);
 		printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);
-		printf("Error Code: %c\n", recvBuffer.message[0]);
+		printf("Error Code: %c\n", recvBuffer.message);
+                
+                htonl(recvBuffer.beforeAmount);
+                htonl(recvBuffer.afterAmount);
+                htonl(recvBuffer.amount);
 
         /* prepare the message to send */
 
          msg_len = bytes_recd;
-
-         for (i=0; i<msg_len; i++)
-            modifiedSentence[i] = toupper (sentence[i]);
 
          /* send message */
  

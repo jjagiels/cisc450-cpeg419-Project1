@@ -15,6 +15,25 @@
 
 #define BUFF_SIZE 1024
 
+typedef enum{
+
+    mainMenu = 0,
+    checkBalance,
+    deposit,
+    withdraw,
+    transfer,
+    quit,
+} state;
+
+typedef enum{
+
+    C = 0,
+    D,
+    W,
+    T,
+    Q,
+} input;
+
 struct Buffer {
 	/* Values from the client */
 	char ok;		/* Validates the struct */
@@ -30,31 +49,31 @@ struct Buffer {
 	int afterAmount;	/* Value used to transmit the amount of money in an account after a transaction */
 };
 
-void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len, enum menu){
+void SendFunc(struct Buffer msg, int sock_client, state menu){
 	int bytes_sent;
 	/* send message */
 
-	bytes_sent = send(sock_client, &msg, msg_len, 0);
+	bytes_sent = send(sock_client, &msg, sizeof(msg), 0);
 	printf("Message validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
     printf("Transaction type: %c\n", menu);
 	printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
 	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
-	printf("Amount (in USD) expected: $%d\n", msg.amount); 
+	printf("Amount (in USD) expected: $%d\n", ntohl(msg.amount)); 
 	printf("MESSAGE LENGTH: %d bytes\n", bytes_sent);
 }
 
-void RecvFunc(struct buffer msg, int socket_client, unsigned int nsg_len, enum menu) {
+void RecvFunc(struct Buffer msg, int sock_client, state menu) {
 	int bytes_recd; /* number of bytes sent or received */
 	/* get response from server */
 
-	bytes_recd = recv(sock_client, &msg, BUFF_SIZE, 0);
+	bytes_recd = recv(sock_client, &msg, sizeof(msg), 0);
 	printf("Message validation (0 for NOT VALID, 1 for VALID) for RECEIVE: %c\n", msg.ok);
 	//printf("Transaction type: %c\n", menu);
 	//printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
 	printf("Error message from server: %c", msg.message);
 	//printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
-	printf("Amount (in USD) in account before Transaction: $%d\n", msg.beforeAmount);
-	printf("Amount (in USD) in account after Transaction: $%d\n", msg.afterAmount);
+	printf("Amount (in USD) in account before Transaction: $%d\n", ntohl(msg.beforeAmount));
+	printf("Amount (in USD) in account after Transaction: $%d\n", ntohl(msg.afterAmount));
 	printf("MESSAGE LENGTH: %d bytes\n", bytes_recd);
 }
 
@@ -90,13 +109,13 @@ int main(void) {
    struct hostent * server_hp;      /* Structure to store server's IP
                                         address */
                                         
-   struct Buffer buffer = {'0','I','3','3',0,"/0"};
-   struct Buffer returnBuffer = {'0','I','3','3',0,"/0"};
+   struct Buffer buffer;
+   struct Buffer returnBuffer;
                                         
-   enum state{main, checkBalance, deposit, withdraw, transfer, quit}menu;
-   enum input{C,D,W,T,Q}userSelection;
+   state menu = mainMenu;
+   input userSelection = C;
    int accountID = 3;
-   menu = main;
+   menu = mainMenu;
    char server_hostname[BUFF_SIZE]; /* Server's hostname */
    unsigned short server_port;  /* Port number used by server (remote port) */
 
@@ -156,7 +175,7 @@ int main(void) {
    /* our banking user interface */
    while(1){
       switch(menu){
-          case main:
+          case mainMenu:
             printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:");
             scanf("%s", &selection);
         
@@ -182,7 +201,7 @@ int main(void) {
                     menu = quit;
                 default:
                     printf("Invalid selection, please try again\n");
-                    menu = main;
+                    menu = mainMenu;
                     break;
             }
             continue;
@@ -191,10 +210,11 @@ int main(void) {
               char acct;
               //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
               printf("\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:");
-              scanf("%c", &acct);
+              scanf("%s", &acct);
               buffer.directive = 'C';
               buffer.account1 = (char)acct;
               buffer.ok = '1';
+              menu = mainMenu;
               break;
           }
           case deposit:{
@@ -202,13 +222,14 @@ int main(void) {
 			  char acct;
 			  int amt;
 			  printf("\nPlease select:\n\nChecking account: 0\n Savings account: 1\n:");
-			  scanf("%c", &acct);
+			  scanf("%s", &acct);
 			  printf("\nPlease enter amount to be deposited:\n");
 			  scanf("%d", &amt);
 			  buffer.ok = 1;
 			  buffer.directive = 'D';
 			  buffer.account1 = acct;
 			  buffer.amount = htonl(amt);
+                          menu = mainMenu;
 			  break;
           }
 		  case withdraw:{
@@ -220,6 +241,7 @@ int main(void) {
 			  buffer.directive = 'W';
 			  buffer.account1 = 0;
 			  buffer.amount = htonl(amt);
+                          menu = mainMenu;
 			  break;
 		  }
           case transfer:{
@@ -229,17 +251,15 @@ int main(void) {
               int amt;
               
               printf("\nPlease select which account you are tranferring FROM:\n\nChecking account: 0\n Savings account: 1\n:");
-              scanf("%c", &acct1);
-              printf("\nPlease select which account you are tranferring TO:\n\nChecking account: 0\n Savings account: 1\n:");
-              scanf("%c", &acct2);
+              scanf("%s", &acct1);
               printf("\nPlease enter amount to be tranferred\n:");
               scanf("%d", &amt);
               
               buffer.directive = 'T';
               buffer.account1 = acct1;
-              buffer.account2 = acct2;
               buffer.amount = htonl(amt);
               buffer.ok = '1';
+              menu = mainMenu;
               break;
           }
           case quit:{
@@ -247,10 +267,10 @@ int main(void) {
               //TODO: Code Here
               close (sock_client);
               printf("\nDo you wish to reconnect? (y/n)\n:");
-              scanf("%c",&input);
+              scanf("%s",&input);
               if(input == 'y' || input == 'Y'){
                   //TODO: Move connection to its own function, and call that function here
-                menu = main;
+                menu = mainMenu;
                 continue;
               }
               else{
@@ -263,9 +283,14 @@ int main(void) {
               exit(0);
               break;
       }
+      SendFunc(buffer, sock_client, menu);
+   
+      RecvFunc(buffer, sock_client, menu);
    }
 
    /* close the socket */
+   
+   
 
    close (sock_client);
 }

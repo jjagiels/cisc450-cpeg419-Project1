@@ -183,9 +183,11 @@ int main(void) {
             case 'Q':{
             
                 //TODO: The client has disconnected
+				break;
             }
             default:
                 //TODO: return an error to the client
+				break;
         }
 
         /* prepare the message to send */

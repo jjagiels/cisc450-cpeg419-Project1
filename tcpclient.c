@@ -25,7 +25,7 @@ struct Buffer {
 };
 
 void SendFunc(struct Buffer msg, int sock_client, unsigned int msg_len){
-        int bytes_sent, bytes_recd; /* number of bytes sent or received */
+    int bytes_sent, bytes_recd; /* number of bytes sent or received */
 	/* send message */
 
 	bytes_sent = send(sock_client, &msg, msg_len, 0);

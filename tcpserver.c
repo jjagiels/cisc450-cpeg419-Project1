@@ -13,13 +13,39 @@
 #define BUFF_SIZE 1024   
 
 struct Buffer {
+	/* Values from the client */
 	char ok;		/* Validates the struct */
 	char directive;         /* informs server of action user wishes to take */
-	char account1;		/* 0 or 1 for Checkings or Savings, respectively */
-	char account2;		/* 0 or 1 for Checkings or Savings, respectively */
+	char account1;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the account used for checking balance, depositing, withdrawing, or the origin account for transfers*/
+	char account2;		/* 0 or 1 for Checkings or Savings, respectively, used to dictate the target account for transfers */
 	int amount;			/* Amount to be deposited, withdrawn or transfered */
-	char message[15];   /* Return message from the server */
+	
+	
+	/* Values from the server */
+	char message[15];   /* Error message from the server */
+	int beforeAmount;	/* Value used to transmit the amount of money in an account before a transaction */
+	int afterAmount;	/* Value used to transmit the amount of money in an account after a transaction */
 }recvBuffer;
+
+/*
+
+DESCRIPTION OF ERROR CODES:
+
+------------------------------------------
+|| CODE ||            MEANING           ||
+------------------------------------------
+||  'A' || Invalid message              ||
+------------------------------------------
+||  'B' || Withdrawl from Savings       ||
+------------------------------------------
+||  'C' || Overdraw from account        ||
+------------------------------------------
+||  'D' || Withdraw not divisible by 20 ||
+------------------------------------------
+||  'E' || Invalid account selected     ||
+------------------------------------------
+
+*/
 
 /* SERV_TCP_PORT is the port number on which the server listens for
    incoming requests from clients. You should change this to a different
@@ -46,6 +72,9 @@ int main(void) {
    unsigned int msg_len;  /* length of message */
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
    unsigned int i;  /* temporary loop variable */
+   
+   unsigned int checkingBalance = 0; /* amount of money in the Checking account */
+   unsigned int savingsBalance = 0; /* amount of money in the savings account */
 
    /* open a socket */
 
@@ -121,6 +150,18 @@ int main(void) {
             case 'C':{
             
                 //TODO: The server must check the amount of money stored in the account requested, and return that amount to the client
+				if(recvBuffer.account1 == '0'){ //The user has selected the Checking account
+				
+					recvBuffer.beforeAmount = checkingBalance;
+				}
+				else if(recvBuffer.account1 == '1'){ //The user has selected the Savings account
+				
+					recvBuffer.beforeAmount = savingsBalance;
+				}
+				else{ //Neither the checking or savings account was selected, and an error must be returned
+				
+					recvBuffer.message = "E\0";
+				}
                 break;
             }
             
@@ -156,7 +197,7 @@ int main(void) {
 
          /* send message */
  
-         bytes_sent = send(sock_connection, modifiedSentence, msg_len, 0);
+         bytes_sent = send(sock_connection, &recvBuffer, msg_len, 0);
       }
 
       /* close the socket */

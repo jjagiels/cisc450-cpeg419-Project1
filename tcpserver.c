@@ -11,7 +11,9 @@
 #include <netinet/in.h>     /* for sockaddr_in */
 #include <unistd.h>         /* for close */
 
-#define BUFF_SIZE 1024  
+#define BUFF_SIZE 1024
+#define GREEN "\x1b[32m"
+#define RESET "\x1b[0m"
 
 int sock_server;  /* Socket on which server listens to clients */
 int sock_connection;  /* Socket on which server exchanges data with client */
@@ -49,7 +51,7 @@ void serverListen(){
         close(sock_server);
         exit(1);
     }
-    printf("I am here to listen ... on port %hu\n\n", server_port);
+    printf(GREEN "I am here to listen ... on port %hu\n\n" RESET, server_port);
     
     client_addr_len = sizeof (client_addr);
     
@@ -159,38 +161,38 @@ int main(void) {
                 switch(recvBuffer.directive){
                     
                     case 'C':
-                        printf("User has selected the option: Check Balance\n");
+                        printf(GREEN "User has selected the option: Check Balance\n" RESET);
                         break;
                     case 'D':
-                        printf("User has selected the option: Deposit\n");
+                        printf(GREEN "User has selected the option: Deposit\n" RESET);
                         break;
                     case 'W':
-                        printf("User has selected the option: Withdraw\n");
+                        printf(GREEN "User has selected the option: Withdraw\n" RESET);
                         break;
                     case 'T':
-                        printf("User has selected the option: Transfer\n");
+                        printf(GREEN "User has selected the option: Transfer\n" RESET);
                         break;
                     case 'Q':
-                        printf("User has disconnected\n");
+                        printf(GREEN "User has disconnected\n" RESET);
                     default:
-                        printf("User has made an invalid selection of directive\n");
+                        printf(GREEN "User has made an invalid selection of directive\n" RESET);
                         break;
                 }
                 
                 switch(recvBuffer.account1){
                     
                     case '0':
-                        printf("User has selected the account: Checking\n");
+                        printf(GREEN "User has selected the account: Checking\n" RESET);
                         break;
                     case '1':
-                        printf("User has selected the account: Savings\n");
+                        printf(GREEN "User has selected the account: Savings\n" RESET);
                         break;
                     default:
-                        printf("User has made an invalid selection of account\n");
+                        printf(GREEN "User has made an invalid selection of account\n" RESET);
                         break;
                 }
                 
-                printf("The user has specified %d as the amount to use for this transaction\n\n", recvBuffer.amount);
+                printf(GREEN "The user has specified %d as the amount to use for this transaction\n\n" RESET, recvBuffer.amount);
                 
                 /* add some newlines for readability*/
                 
@@ -319,7 +321,7 @@ int main(void) {
                         break;
                     }
                     case 'Q':{
-                        printf("Server will not respond to client, as client has disconnected\n");
+                        printf(GREEN "Server will not respond to client, as client has disconnected\n" RESET);
                         close(sock_connection);
                         serverListen();
                         continue;
@@ -331,11 +333,11 @@ int main(void) {
                 
                 /*Print out the information from the response */
                 
-                printf("Server recieved %d bytes\n",bytes_recd);
-                printf("Server will respond with:\n\n");
-                printf("Amount stored in selected account before transaction: %d\n", recvBuffer.beforeAmount);
-                printf("Amount stored in selected account after transaction: %d\n", recvBuffer.afterAmount);
-                printf("Error Code: %c\n\n", recvBuffer.message);
+                printf(GREEN "Server recieved %d bytes\n"RESET,bytes_recd);
+                printf(GREEN "Server will respond with:\n\n"RESET);
+                printf(GREEN"Amount stored in selected account before transaction: %d\n"RESET, recvBuffer.beforeAmount);
+                printf(GREEN"Amount stored in selected account after transaction: %d\n"RESET, recvBuffer.afterAmount);
+                printf(GREEN "Error Code: %c\n\n" RESET, recvBuffer.message);
                 
                 recvBuffer.beforeAmount = htonl(recvBuffer.beforeAmount);
                 recvBuffer.afterAmount = htonl(recvBuffer.afterAmount);
@@ -351,8 +353,8 @@ int main(void) {
                 
                 /* last information to print out */
                 
-                printf("Server is sending %d bytes\n",bytes_sent);
-                printf("End server response\n\n");
+                printf(GREEN "Server is sending %d bytes\n" RESET,bytes_sent);
+                printf(GREEN "End server response\n\n"RESET );
             }
             
             /* close the socket */

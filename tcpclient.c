@@ -14,6 +14,8 @@
 #include <arpa/inet.h>      /* for htonl and ntohl */
 
 #define BUFF_SIZE 1024
+#define BLUE "\x1b[34m"
+#define RESET "\x1b[0m"
 
 int sock_client;  /* Socket used by client */
 
@@ -59,37 +61,37 @@ struct Buffer {
     int afterAmount;	/* Value used to transmit the amount of money in an account after a transaction */
 };
 
-void SendFunc(struct Buffer msg, int sock_client, state menu){
+void SendFunc(struct Buffer msg, int sock_client, input userSelection){
     int bytes_sent;
     /* send message */
     
     bytes_sent = send(sock_client, &msg, sizeof(msg), 0);
-    printf("\nMessage validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n", msg.ok);
-    switch(menu){
+    printf(BLUE "\nMessage validation (0 for NOT VALID, 1 for VALID) for SEND: %c\n"RESET, msg.ok);
+    switch(userSelection){
         
-        case checkBalance:
-            printf("Transaction type: Check Balance");
+        case 'C':
+            printf(BLUE "Transaction type: Check Balance\n" RESET);
             break;
-        case deposit:
-            printf("Transaction type: Deposit");
+        case 'D':
+            printf(BLUE "Transaction type: Deposit\n" RESET);
             break;
-        case withdraw:
-            printf("Transaction type: Withdraw");
+        case 'W':
+            printf(BLUE "Transaction type: Withdraw\n" RESET);
             break;
-        case transfer:
-            printf("Transaction type: Transaction");
+        case 'T':
+            printf(BLUE "Transaction type: Transaction\n" RESET);
             break;
-        case quit:
-            printf("Transaction type: Disconnect");
+        case 'Q':
+            printf(BLUE "Transaction type: Disconnect\n" RESET);
             break;
         default:
-            printf("Invalid selection, please try again\n");
+            printf(BLUE "Invalid selection, please try again\n" RESET);
             break;
     }
-    printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
+    printf(BLUE "Account used (0 for Checkings, 1 for Savings): %c\n" RESET, msg.account1);
     //printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
-    printf("Amount (in USD) expected: $%d\n", ntohl(msg.amount)); 
-    printf("MESSAGE LENGTH: %d bytes\n\n", bytes_sent);
+    printf(BLUE "Amount (in USD) expected: $%d\n" RESET, ntohl(msg.amount)); 
+    printf(BLUE "MESSAGE LENGTH: %d bytes\n\n" RESET, bytes_sent);
 }
 
 void RecvFunc(struct Buffer msg, int sock_client, state menu) {
@@ -99,17 +101,17 @@ void RecvFunc(struct Buffer msg, int sock_client, state menu) {
     bytes_recd = recv(sock_client, &msg, sizeof(msg), 0);
     if(bytes_recd == 0){ //connection was interrupted, print an error and return
         
-        printf("connection closed abruptly, returning...\n");
+        printf(BLUE "connection closed abruptly, returning...\n" RESET);
         return;
     }
-    printf("Message validation (0 for NOT VALID, 1 for VALID) for RECEIVE: %c\n", msg.ok);
+    printf(BLUE "Message validation (0 for NOT VALID, 1 for VALID) for RECEIVE: %c\n" RESET, msg.ok);
     //printf("Transaction type: %c\n", menu);
     //printf("Account used (0 for Checkings, 1 for Savings): %c\n", msg.account1);
-    printf("Error message from server: %c\n", msg.message);
+    printf(BLUE "Error message from server: %c\n" RESET, msg.message);
     //printf("Account 2 used (0 for Checkings, 1 for Savings): %c\n", msg.account2);
-    printf("Amount (in USD) in account before Transaction: $%d\n", ntohl(msg.beforeAmount));
-    printf("Amount (in USD) in account after Transaction: $%d\n", ntohl(msg.afterAmount));
-    printf("MESSAGE LENGTH: %d bytes\n\n", bytes_recd);
+    printf(BLUE "Amount (in USD) in account before Transaction: $%d\n" RESET, ntohl(msg.beforeAmount));
+    printf(BLUE "Amount (in USD) in account after Transaction: $%d\n" RESET, ntohl(msg.afterAmount));
+    printf(BLUE "MESSAGE LENGTH: %d bytes\n\n" RESET, bytes_recd);
 }
 
 void clientConnect(){
@@ -130,7 +132,7 @@ void clientConnect(){
     
     /* initialize server address information */
     
-    printf("Enter hostname of server: ");
+    printf(BLUE "Enter hostname of server: " RESET);
     scanf("%s", server_hostname);
     if ((server_hp = gethostbyname(server_hostname)) == NULL) {
         perror("Client: invalid server hostname");
@@ -138,7 +140,7 @@ void clientConnect(){
         exit(1);
     }
     
-    printf("Enter port number for server: ");
+    printf(BLUE "Enter port number for server: " RESET);
     scanf("%hu", &server_port);
     
     /* Clear server address structure and initialize with server address */
@@ -216,7 +218,7 @@ int main(void) {
         
         switch(menu){
             case mainMenu:
-                printf("Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:");
+                printf( BLUE"Please select an action:\nCheck the balance of an account: C\nDeposit an amount into an account: D\nWithdraw an amount from an account: W\nTransfer an amount from one account to another: T\nDisconnect from the server: Q\n:" RESET);
                 scanf("%s", &selection);
                 
                 selection = toupper(selection);
@@ -241,7 +243,7 @@ int main(void) {
                         menu = quit;
                         break;
                     default:
-                        printf("Invalid selection, please try again\n");
+                        printf(BLUE "Invalid selection, please try again\n" RESET);
                         menu = mainMenu;
                         break;
                 }
@@ -249,8 +251,8 @@ int main(void) {
                 break;
                     case checkBalance:{
                         char acct;
-                        //TODO: Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
-                        printf("\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:");
+                        //Ask for an account name to be specified, and this should prepare the sent packet to send a check balance request for the specified account name, and should do not spelling or other checks
+                        printf(BLUE "\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:" RESET);
                         scanf("%s", &acct);
                         buffer.directive = 'C';
                         buffer.account1 = (char)acct;
@@ -259,12 +261,12 @@ int main(void) {
                         break;
                     }
                     case deposit:{
-                        //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
+                        //Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be added to the specified account
                         char acct;
                         int amt;
-                        printf("\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:");
+                        printf(BLUE "\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:" RESET);
                         scanf("%s", &acct);
-                        printf("\nPlease enter amount to be deposited\n:");
+                        printf(BLUE "\nPlease enter amount to be deposited\n:" RESET);
                         scanf("%d", &amt);
                         buffer.ok = '1';
                         buffer.directive = 'D';
@@ -274,26 +276,29 @@ int main(void) {
                         break;
                     }
                     case withdraw:{
-                        //TODO: Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
+                        //Ask for an account name to be specified, and do no checks on the name of the account as above; also ask for a number to be withdrawn. *important* specify that the amount should be in $20 intervals, but do not check
+                        char acct;
                         int amt;
-                        printf("\nPlease enter amount to be withdrawn from Checkings (use only $20 incerements):\n");
+                        printf(BLUE "\nPlease select:\n\nChecking account: 0\nSavings account: 1\n:" RESET);
+                        scanf("%s", &acct);
+                        printf(BLUE "\nPlease enter amount to be withdrawn (use only $20 incerements):\n"RESET);
                         scanf("%d", &amt);
                         buffer.ok = '1';
                         buffer.directive = 'W';
-                        buffer.account1 = '0';
+                        buffer.account1 = acct;
                         buffer.amount = htonl(amt);
                         menu = mainMenu;
                         break;
                     }
                     case transfer:{
-                        //TODO: Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
+                        //Ask for an original account and an account to transfer to, then ask for an amount to be tranfered (in whole dollar amounts), do not check any value
                         char acct1;
                         char acct2;
                         int amt;
                         
-                        printf("\nPlease select which account you are tranferring FROM:\n\nChecking account: 0\n Savings account: 1\n:");
+                        printf(BLUE "\nPlease select which account you are tranferring FROM:\n\nChecking account: 0\n Savings account: 1\n:" RESET);
                         scanf("%s", &acct1);
-                        printf("\nPlease enter amount to be tranferred\n:");
+                        printf(BLUE "\nPlease enter amount to be tranferred\n:" RESET);
                         scanf("%d", &amt);
                         
                         buffer.directive = 'T';
@@ -310,7 +315,7 @@ int main(void) {
                         buffer.ok = '1';
                         SendFunc(buffer, sock_client, menu);
                         close (sock_client);
-                        printf("\nDo you wish to reconnect? (y/n)\n:");
+                        printf(BLUE "\nDo you wish to reconnect? (y/n)\n:" RESET);
                         scanf("%s",&input);
                         if(input == 'y' || input == 'Y'){
                             
@@ -325,13 +330,13 @@ int main(void) {
                         break;
                     }
                     default:
-                        printf("menu enum not working correctly! Fix it!");
+                        printf(BLUE "menu enum not working correctly! Fix it!" RESET);
                         exit(0);
                         break;
         }
-        SendFunc(buffer, sock_client, menu);
+        SendFunc(buffer, sock_client, userSelection);
         
-        RecvFunc(buffer, sock_client, menu);
+        RecvFunc(buffer, sock_client, userSelection);
         
         
     }

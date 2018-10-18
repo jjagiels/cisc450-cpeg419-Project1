@@ -14,7 +14,7 @@
 #include <arpa/inet.h>      /* for htonl and ntohl */
 
 #define BUFF_SIZE 1024
-#define BLUE "\x1b[34m"
+#define BLUE "\x1b[36m"
 #define RESET "\x1b[0m"
 
 int sock_client;  /* Socket used by client */
